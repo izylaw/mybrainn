@@ -49,15 +49,36 @@ mybrain/
     └── telegram/      (bot handler)
 ```
 
-## Next Steps
+## Quick Start
 
-1. **Requirements Review** — Refine feature scope with Aygun
-2. **Architecture Design** — Database schema, API design
-3. **Frontend** — Web form + list + search
-4. **Backend** — API endpoints, SQLite setup
-5. **Telegram** — Bot command handler + webhook
-6. **Testing & Launch**
+### Frontend (React + Vite)
+```bash
+cd src/web
+npm install
+npm run dev
+# Runs on http://localhost:8080
+# Proxies /api requests to localhost:8081
+```
+
+### Backend (Node.js + Express + SQLite)
+```bash
+npm install
+npm start
+# Runs on http://localhost:8081
+# POST /api/entries - create entry
+# GET /api/entries - list all
+# GET /api/search?q=query - search
+```
+
+### Telegram Integration
+- Bot: @my_brain_ayg_bot
+- Command: `/mybrain <message>` saves to database
+- Token stored in `.env` (do not commit)
 
 ## Status
 
-🚀 Ready for implementation. Awaiting team assignment.
+✅ **MVP Complete** — Backend API + React frontend + Telegram integration fully functional.
+- Frontend: React 18 + TypeScript + Vite + Tailwind
+- Backend: Node.js + Express + SQLite
+- Telegram: Webhook handler for /mybrain commands
+- Ports: Frontend 8080, Backend 8081
