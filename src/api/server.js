@@ -3,7 +3,7 @@ import { initDb, createEntry, listEntries, searchEntries, deleteEntry } from './
 import { handleTelegramMyBrain } from '../telegram/handler.js';
 
 const app = express();
-const PORT = Number(process.env.PORT || 3001);
+const PORT = Number(process.env.PORT || 8081);
 
 app.use(express.json());
 
