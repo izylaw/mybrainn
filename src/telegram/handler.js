@@ -1,38 +1,71 @@
-import { createEntry } from '../api/db.js';
+/**
+ * MyBrain Telegram Message Handler
+ * 
+ * Called by OpenClaw when a message arrives from @my_brain_ayg_bot
+ * Automatically saves /mybrain commands to the database
+ */
 
-function parseTags(text) {
-  return [...text.matchAll(/#([\p{L}0-9_-]+)/gu)].map((m) => m[1]);
+const http = require('http');
+
+/**
+ * Handle incoming Telegram message
+ * @param {string} text - The message text
+ * @returns {object} - { handled, ok, message, entry }
+ */
+function handleTelegramMyBrain(text) {
+  if (!text || !text.startsWith('/mybrain')) {
+    return { handled: false };
+  }
+
+  // Extract content (remove '/mybrain ' prefix, trim)
+  const content = text.slice('/mybrain'.length).trim();
+
+  if (!content) {
+    return {
+      handled: true,
+      ok: false,
+      message: '❌ Usage: /mybrain <your message>',
+    };
+  }
+
+  // Synchronously save to database
+  try {
+    const Database = require('better-sqlite3');
+    const db = new Database(process.env.DB_PATH || './data/mybrain.db');
+
+    const now = new Date().toISOString();
+    const stmt = db.prepare(`
+      INSERT INTO entries (title, content, tags, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+      `Telegram (${new Date(now).toLocaleTimeString()})`,
+      content,
+      JSON.stringify(['telegram']),
+      now,
+      now
+    );
+
+    db.close();
+
+    return {
+      handled: true,
+      ok: true,
+      message: `✅ Saved: "${content.slice(0, 50)}${content.length > 50 ? '...' : ''}"`,
+      entry: {
+        id: result.lastInsertRowid,
+        content: content,
+        created_at: now,
+      },
+    };
+  } catch (error) {
+    return {
+      handled: true,
+      ok: false,
+      message: `❌ Error: ${error.message}`,
+    };
+  }
 }
 
-export function parseMyBrainCommand(text = '') {
-  const trimmed = text.trim();
-  if (!trimmed.startsWith('/mybrain')) return null;
-
-  const body = trimmed.replace(/^\/mybrain\s*/i, '').trim();
-  if (!body) return { error: 'Usage: /mybrain <message>' };
-
-  const tags = parseTags(body);
-  const plain = body.replace(/#([\p{L}0-9_-]+)/gu, '').trim();
-
-  const title = plain.length > 60 ? `${plain.slice(0, 57)}...` : plain;
-
-  return {
-    title: title || 'Quick note',
-    content: plain || body,
-    tags,
-  };
-}
-
-export function handleTelegramMyBrain(text) {
-  const parsed = parseMyBrainCommand(text);
-  if (!parsed) return { handled: false };
-  if (parsed.error) return { handled: true, ok: false, message: parsed.error };
-
-  const entry = createEntry(parsed);
-  return {
-    handled: true,
-    ok: true,
-    entry,
-    message: `Saved to MyBrain (#${entry.id}) ✅`,
-  };
-}
+module.exports = { handleTelegramMyBrain };
