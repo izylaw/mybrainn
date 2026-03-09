@@ -13,9 +13,11 @@
  *   kill %1
  */
 
-const https = require('https');
-const http = require('http');
-require('dotenv').config();
+import https from 'https';
+import http from 'http';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8532964164:AAG0DoIc7O-fOoT8oHxz_EEUuVRqcrTFlng';
 const POLL_INTERVAL = 2000; // 2 seconds

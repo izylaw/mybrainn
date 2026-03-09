@@ -5,14 +5,14 @@
  * Automatically saves /mybrain commands to the database
  */
 
-const http = require('http');
+import Database from 'better-sqlite3';
 
 /**
  * Handle incoming Telegram message
  * @param {string} text - The message text
  * @returns {object} - { handled, ok, message, entry }
  */
-function handleTelegramMyBrain(text) {
+export function handleTelegramMyBrain(text) {
   if (!text || !text.startsWith('/mybrain')) {
     return { handled: false };
   }
@@ -30,7 +30,6 @@ function handleTelegramMyBrain(text) {
 
   // Synchronously save to database
   try {
-    const Database = require('better-sqlite3');
     const db = new Database(process.env.DB_PATH || './data/mybrain.db');
 
     const now = new Date().toISOString();
@@ -67,5 +66,3 @@ function handleTelegramMyBrain(text) {
     };
   }
 }
-
-module.exports = { handleTelegramMyBrain };
